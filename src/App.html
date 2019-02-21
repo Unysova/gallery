@@ -1,0 +1,117 @@
+<div class="content">
+    <p>Вы можете загрузить картинку или даже несколько с вашего компьютера</p>
+
+    <input type="file" multiple placeholder="Загрузите файл с вашего компьютера"
+           on:change="processFiles(this.files)">
+
+    <p>или добавьте ссылку на сторонний ресурс(после добавления ссылки, нажмите enter)</p>
+    <input type="url" placeholder="укажите ссылку на файл" on:change="getLink()" bind:value="imageUrl">
+</div>
+
+<div class="gallery">
+    {#each images as image}
+    <div class="gallery__image-wrapper"><img src="{image.src}" alt="" class="gallery__image"></div>
+    {/each}
+</div>
+
+<style lang="sass" type="text/scss">
+    $tablet: 767px;
+    $desktop: 1024px;
+
+    .gallery {
+        display: flex;
+        justify-content: flex-start;
+        align-items: stretch;
+        flex-flow: row wrap;
+        width: 100%;
+        max-width: 850px;
+        min-height: 320px;
+        margin: 0 auto;
+    }
+
+    .gallery__image-wrapper {
+        max-height: 100px;
+        height: auto;
+        width: auto;
+        margin: 5px;
+        box-shadow: 0 0 14px 0 rgba(0, 0, 0, .2);
+    }
+
+    .gallery__image {
+        height: 100%;
+        width: auto;
+        display: block;
+    }
+
+    input {
+        width: 100%;
+    }
+
+    @media screen and (min-width: $tablet){
+        .gallery__image-wrapper {
+            height: 200px;
+        }
+    }
+
+    @media screen and (min-width: $desktop){
+
+    }
+
+</style>
+
+<script>
+  export default {
+    data() {
+      return {
+        images: [],
+        imageUrl: ''
+      }
+    },
+    methods: {
+      processFiles(files) {
+        console.info(files);
+        this.renderImage(files[0])
+      },
+      getLink(input) {
+        this.getSize(this.get().imageUrl);
+      },
+      renderImage(file) {
+        let self = this;
+        let reader = new FileReader();
+
+        reader.onload = function (e) {
+          let src = e.target.result;
+          self.getSize(src);
+        };
+        reader.readAsDataURL(file);
+      },
+
+      getSize(src) {
+        let img = new Image();
+        let self = this;
+        img.onload = function () {
+          let width = this.width;
+          let height = this.height;
+          self.pushImage(src, width, height);
+        };
+
+        img.onerror = function() {
+          alert("упс. что-то пошло не так. Проверьте правильность ссылки");
+        };
+
+        img.src = src;
+      },
+
+      pushImage(src, width, height) {
+        let imagesArray = this.get().images;
+        let image = {
+          "src": `${src}`,
+          "width": width,
+          "height": height
+        };
+        imagesArray.push(image);
+        this.set({images: imagesArray})
+      }
+    }
+  };
+</script>

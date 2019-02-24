@@ -13,6 +13,8 @@
     <div class="decoration">
         <h2>Добавление рамки</h2>
         <button on:click="set({ borderClass: 'black-border' })">Добавить черную рамку</button>
+        <button on:click="set({ borderClass: 'flower-border' })">Добавить цветочную рамку</button>
+        <button on:click="set({ borderClass: '' })">Удалить рамку</button>
     </div>
 
 </section>
@@ -113,7 +115,7 @@
         align-items: stretch;
         flex-flow: row wrap;
         width: 100%;
-        max-width: 850px;
+        max-width: 90vw;
         min-width: 320px;
         margin: 0 auto;
     }
@@ -143,7 +145,12 @@
 
     .black-border {
         border: 10px solid transparent;
-        border-image: url("../images/black-border.png");
+        border-image: url("../images/black-border.png") 100 round;
+    }
+
+    .flower-border {
+        border: 20px solid transparent;
+        border-image: url("../images/flower-border.png") 130 round;
     }
 
     @media screen and (min-width: $tablet){

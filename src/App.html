@@ -13,8 +13,10 @@
         </div>
         <div class="decoration toolbar__section">
             <h2>Добавление рамки</h2>
-            <button on:click="set({ borderClass: 'black-border' })">Добавить черную рамку</button>
-            <button on:click="set({ borderClass: 'flower-border' })">Добавить цветочную рамку</button>
+            <button on:click="set({ borderClass: 'gallery__image-wrapper_black-border' })">Добавить черную
+                рамку</button>
+            <button on:click="set({ borderClass: 'gallery__image-wrapper_flower-border' })">Добавить цветочную
+                рамку</button>
             <button on:click="set({ borderClass: '' })">Удалить рамку</button>
         </div>
         <div class="toolbar__section">
@@ -138,6 +140,26 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
+        &_black-border {
+            margin-top: 10px;
+            margin-bottom: 10px;
+
+            img {
+                border: 10px solid transparent;
+                border-image: url("../images/black-border.png") 100 round;
+            }
+        }
+
+        &_flower-border {
+            margin-top: 25px;
+            margin-bottom: 25px;
+
+            img {
+                border: 20px solid transparent;
+                border-image: url("../images/flower-border.png") 130 round;
+            }
+        }
     }
 
     .gallery__image {
@@ -154,25 +176,6 @@
         }
     }
 
-    .black-border {
-        margin-top: 10px;
-        margin-bottom: 10px;
-
-        img {
-            border: 10px solid transparent;
-            border-image: url("../images/black-border.png") 100 round;
-        }
-    }
-
-    .flower-border {
-        margin-top: 25px;
-        margin-bottom: 25px;
-
-        img {
-            border: 20px solid transparent;
-            border-image: url("../images/flower-border.png") 130 round;
-        }
-    }
 
     @media screen and (min-width: $desktop){
         .gallery-page {

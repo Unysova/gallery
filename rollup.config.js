@@ -1,4 +1,3 @@
-import babel from 'rollup-plugin-babel';
 import svelte from 'rollup-plugin-svelte';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
@@ -34,12 +33,6 @@ export default {
 				css.write('public/bundle.css');
 			}
 		}),
-
-		babel({
-			include: ['./src/**/*.js'],
-			exclude: ['node_modules/**']
-		}),
-
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
 		// some cases you'll need additional configuration —

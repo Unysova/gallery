@@ -1,22 +1,111 @@
-<div class="content">
-    <p>Вы можете загрузить картинку или даже несколько с вашего компьютера</p>
+<h1>Галерея</h1>
+<section class="toolbar">
+    <div class="photo-upload">
+        <h2>Загрузка фото</h2>
+        <p>Вы можете загрузить картинку с вашего компьютера</p>
+        <input type="file" placeholder="Загрузите файл с вашего компьютера"
+               on:change="processFiles(this.files)">
 
-    <input type="file" multiple placeholder="Загрузите файл с вашего компьютера"
-           on:change="processFiles(this.files)">
+        <p>или добавьте ссылку на сторонний ресурс(после добавления ссылки, нажмите enter)</p>
+        <input type="url" placeholder="укажите ссылку на файл" bind:value="imageUrl">
+        <button on:click="getLink()">Добавить картинку по ссылке</button>
+    </div>
+    <div class="decoration">
+        <h2>Добавление рамки</h2>
+        <button on:click="set({ borderClass: 'black-border' })">Добавить черную рамку</button>
+    </div>
 
-    <p>или добавьте ссылку на сторонний ресурс(после добавления ссылки, нажмите enter)</p>
-    <input type="url" placeholder="укажите ссылку на файл" on:change="getLink()" bind:value="imageUrl">
-</div>
+</section>
 
 <div class="gallery">
     {#each images as image}
-    <div class="gallery__image-wrapper"><img src="{image.src}" alt="" class="gallery__image"></div>
+    <div class="gallery__image-wrapper {borderClass}"><img src="{image.src}" alt="" class="gallery__image"></div>
     {/each}
 </div>
 
+<button on:click="set({ showImagesInfo: !showImagesInfo })">Показать/скрыть информацию по картинкам</button>
+
+{#if showImagesInfo}
+<h2>Список загруженных изображений:</h2>
+    {#if images.length === 0}
+    <p>Вы еще ничего не загрузили</p>
+    {/if}
+    <ul class="images-list">
+        {#each images as image}
+        <li>
+            <p>src: {image.src}</p>
+            <p>width: {image.width} px</p>
+            <p>height: {image.height} px</p>
+        </li>
+        {/each}
+    </ul>
+{/if}
+
 <style lang="sass" type="text/scss">
+
+    /*variables*/
     $tablet: 767px;
     $desktop: 1024px;
+
+    $gray: #b9bebe;
+    $lightGray: #ebebeb;
+
+    /*common*/
+
+    input {
+        width: 100%;
+        padding: 15px 30px;
+        font-size: 14px;
+
+        &::-webkit-input-placeholder {
+            opacity: 1;
+            transition: all 0.5s ease;
+            color: $gray;
+        }
+        &::-moz-placeholder {
+            opacity: 1;
+            transition: all 0.5s ease;
+            color: $gray;
+        }
+        &:-moz-placeholder {
+            opacity: 1;
+            transition: all 0.5s ease;
+            color: $gray;
+        }
+        &:-ms-input-placeholder {
+            opacity: 1;
+            transition: all 0.5s ease;
+            color: $gray;
+        }
+
+        &:focus {
+            &::-webkit-input-placeholder {
+                opacity: 0;
+                transition: all 0.5s ease;
+            }
+            &::-moz-placeholder {
+                opacity: 0;
+                transition: all 0.5s ease;
+            }
+            &:-moz-placeholder {
+                opacity: 0;
+                transition: all 0.5s ease;
+            }
+            &:-ms-input-placeholder {
+                opacity: 0;
+                transition: all 0.5s ease;
+            }
+        }
+    }
+
+    button {
+        border: 1px solid $gray;
+        cursor: pointer;
+        box-shadow: 0 0 2px 1px rgba(0, 0, 0, .1);
+        background: $lightGray;
+    }
+
+   /* gallery*/
 
     .gallery {
         display: flex;
@@ -25,26 +114,36 @@
         flex-flow: row wrap;
         width: 100%;
         max-width: 850px;
-        min-height: 320px;
+        min-width: 320px;
         margin: 0 auto;
     }
 
     .gallery__image-wrapper {
-        max-height: 100px;
-        height: auto;
+        height: 100px;
         width: auto;
         margin: 5px;
-        box-shadow: 0 0 14px 0 rgba(0, 0, 0, .2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .gallery__image {
-        height: 100%;
+        height: auto;
+        max-height: 100%;
         width: auto;
         display: block;
     }
 
-    input {
-        width: 100%;
+    .images-list {
+        p {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .black-border {
+        border: 10px solid transparent;
+        border-image: url("../images/black-border.png");
     }
 
     @media screen and (min-width: $tablet){
@@ -64,7 +163,9 @@
     data() {
       return {
         images: [],
-        imageUrl: ''
+        imageUrl: '',
+        showImagesInfo: false,
+        borderClass: ''
       }
     },
     methods: {
@@ -72,7 +173,7 @@
         console.info(files);
         this.renderImage(files[0])
       },
-      getLink(input) {
+      getLink() {
         this.getSize(this.get().imageUrl);
       },
       renderImage(file) {
@@ -96,7 +197,7 @@
         };
 
         img.onerror = function() {
-          alert("упс. что-то пошло не так. Проверьте правильность ссылки");
+          alert("Упс. что-то пошло не так. Проверьте правильность ссылки");
         };
 
         img.src = src;

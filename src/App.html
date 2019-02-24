@@ -1,6 +1,6 @@
 <div class="gallery-page">
+    <h1>Галерея</h1>
     <section class="toolbar">
-        <h1>Галерея</h1>
         <div class="photo-upload toolbar__section">
             <h2>Загрузка фото</h2>
             <p>Вы можете загрузить картинку с вашего компьютера</p>
@@ -14,29 +14,29 @@
         <div class="decoration toolbar__section">
             <h2>Добавление рамки</h2>
             <button on:click="set({ borderClass: 'gallery__image-wrapper_black-border' })">Добавить черную
-                рамку</button>
+                рамку
+            </button>
             <button on:click="set({ borderClass: 'gallery__image-wrapper_flower-border' })">Добавить цветочную
-                рамку</button>
+                рамку
+            </button>
             <button on:click="set({ borderClass: '' })">Удалить рамку</button>
         </div>
-        <div class="toolbar__section">
+        <div class="toolbar__section loaded-images-info">
             <button on:click="set({ showImagesInfo: !showImagesInfo })">Показать/скрыть информацию по картинкам</button>
             {#if showImagesInfo}
-            <div class="loaded-images-info">
-                <h2>Список загруженных изображений:</h2>
-                {#if images.length === 0}
-                <p>Вы еще ничего не загрузили</p>
-                {/if}
-                <ul class="images-list">
-                    {#each images as image}
-                    <li>
-                        <p>src: {image.src}</p>
-                        <p>width: {image.width} px</p>
-                        <p>height: {image.height} px</p>
-                    </li>
-                    {/each}
-                </ul>
-            </div>
+            <h2>Список загруженных изображений:</h2>
+            {#if images.length === 0}
+            <p>Вы еще ничего не загрузили</p>
+            {/if}
+            <ul class="images-list">
+                {#each images as image}
+                <li>
+                    <p>src: {image.src}</p>
+                    <p>width: {image.width} px</p>
+                    <p>height: {image.height} px</p>
+                </li>
+                {/each}
+            </ul>
             {/if}
         </div>
     </section>
@@ -112,15 +112,15 @@
         background: $lightGray;
     }
 
-   /* toolbar*/
+    /* toolbar*/
 
     .toolbar__section {
-        padding: 20px 10px;
+        padding: 20px;
         box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.2);
         margin: 10px 0;
     }
 
-   /* gallery*/
+    /* gallery*/
 
     .gallery {
         display: flex;
@@ -134,7 +134,7 @@
     }
 
     .gallery__image-wrapper {
-        height: 100px;
+        height: 150px;
         width: auto;
         margin: 5px;
         display: flex;
@@ -176,23 +176,25 @@
         }
     }
 
-
-    @media screen and (min-width: $desktop){
-        .gallery-page {
-            display: flex;
-            flex-flow: row wrap;
-            align-items: flex-start;
-            justify-content: space-between;
-        }
-
+    @media screen and (min-width: $desktop) {
         .gallery__image-wrapper {
             height: 200px;
         }
 
-        .toolbar,
-        .gallery {
-            width: 45%;
+        .toolbar {
+            display: flex;
+            flex-flow: row wrap;
+            align-items: stretch;
+            justify-content: space-between;
         }
+
+        .toolbar__section {
+            width: 45%;
+            &.loaded-images-info {
+                width: 100%;
+            }
+        }
+
     }
 
 </style>
@@ -235,7 +237,7 @@
           self.pushImage(src, width, height);
         };
 
-        img.onerror = function() {
+        img.onerror = function () {
           alert("Упс. что-то пошло не так. Проверьте правильность ссылки");
         };
 

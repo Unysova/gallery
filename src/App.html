@@ -142,25 +142,25 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        box-sizing: border-box;
 
         &_black-border {
             margin-top: 10px;
             margin-bottom: 10px;
+            border: 10px solid transparent;
+            border-image: url("images/black-border.png") 100 round;
 
             img {
-                border: 10px solid transparent;
-                border-image: url("images/black-border.png") 100 round;
+
             }
         }
 
         &_flower-border {
             margin-top: 25px;
             margin-bottom: 25px;
+            border: 20px solid transparent;
+            border-image: url("images/flower-border.png") 130 round;
 
-            img {
-                border: 20px solid transparent;
-                border-image: url("images/flower-border.png") 130 round;
-            }
         }
     }
 
@@ -261,9 +261,8 @@
 
         var result = layout(imagesArray, {
           align: 'center', // optional
-          containerWidth: 860,
-          //idealElementHeight: 300,
-          spacing: 5,
+          containerWidth: galleryWidth,
+          spacing: 15,
           idealElementHeight: 300,
         });
 

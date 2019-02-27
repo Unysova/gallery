@@ -43,7 +43,10 @@
 
     <div class="gallery">
         {#each images as image}
-        <div class="gallery__image-wrapper {borderClass}"><img src="{image.src}" alt="" class="gallery__image"></div>
+        <div class="gallery__image-wrapper {borderClass}" style="
+        width:{image.gallerySize.width}%;"><img
+                src="{image.src}" alt=""
+                                                                         class="gallery__image"></div>
         {/each}
     </div>
 </div>
@@ -128,15 +131,14 @@
         align-items: stretch;
         flex-flow: row wrap;
         width: 100%;
-        max-width: 90vw;
+        max-width: 860px;
         min-width: 320px;
         margin: 0 auto;
     }
 
     .gallery__image-wrapper {
-        height: 150px;
-        width: auto;
-        margin: 5px;
+        //height: 150px;
+        //width: auto;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -164,8 +166,7 @@
 
     .gallery__image {
         height: auto;
-        max-height: 100%;
-        width: auto;
+        width: 100%;
         display: block;
     }
 
@@ -177,9 +178,6 @@
     }
 
     @media screen and (min-width: $desktop) {
-        .gallery__image-wrapper {
-            height: 200px;
-        }
 
         .toolbar {
             display: flex;
@@ -200,6 +198,7 @@
 </style>
 
 <script>
+  import layout from 'image-layout/layouts/fixed-partition';
   export default {
     data() {
       return {
@@ -212,7 +211,7 @@
     methods: {
       processFiles(files) {
         console.info(files);
-        this.renderImage(files[0])
+        this.renderImage(files[0]);
       },
       getLink() {
         this.getSize(this.get().imageUrl);
@@ -246,13 +245,38 @@
 
       pushImage(src, width, height) {
         let imagesArray = this.get().images;
+        this.set({images: []});
         let image = {
           "src": `${src}`,
           "width": width,
-          "height": height
+          "height": height,
+          gallerySize : {
+            width: 0,
+            height: 0
+          }
         };
         imagesArray.push(image);
-        this.set({images: imagesArray})
+
+        var galleryWidth = document.getElementsByClassName("gallery")[0].offsetWidth;
+
+        var result = layout(imagesArray, {
+          align: 'center', // optional
+          containerWidth: 860,
+          //idealElementHeight: 300,
+          spacing: 5,
+          idealElementHeight: 300,
+        });
+
+
+        for (var i = 0, n = imagesArray.length; i < n; i++) {
+          let width = result.positions[i].width * 100/ galleryWidth;
+          imagesArray[i].gallerySize.width = width;
+          //imagesArray[i].gallerySize.height = result.positions[i].height;
+        }
+
+        this.set({images: imagesArray});
+
+        console.info(this.get().images);
       }
     }
   };

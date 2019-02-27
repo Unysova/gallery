@@ -21,5 +21,7 @@
     "start": "sirv public",
     "start:dev": "sirv public --dev"
   },
-  "dependencies": {}
+  "dependencies": {
+    "image-layout": "^0.4.1"
+  }
 }

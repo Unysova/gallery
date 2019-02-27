@@ -1,11 +1,15 @@
 import svelte from 'rollup-plugin-svelte';
 import resolve from 'rollup-plugin-node-resolve';
+import babel from 'rollup-plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
 import { sass } from 'svelte-preprocess-sass';
 
-
 const production = !process.env.ROLLUP_WATCH;
+
+const extensions = [
+  '.js', '.jsx', '.ts', '.tsx', 'html'
+];
 
 
 export default {
@@ -40,6 +44,10 @@ export default {
 		// https://github.com/rollup/rollup-plugin-commonjs
 		resolve(),
 		commonjs(),
+      babel({
+        exclude: 'node_modules/**',
+        extensions// only transpile our source code
+      }),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify

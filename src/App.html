@@ -4,12 +4,14 @@
         <div class="photo-upload toolbar__section">
             <h2>Загрузка фото</h2>
             <p>Вы можете загрузить картинку с вашего компьютера</p>
-            <input type="file" placeholder="Загрузите файл с вашего компьютера"
-                   on:change="processFiles(this.files)">
+            <form action="" id="gallery-inputs">
+                <input type="file" placeholder="Загрузите файл с вашего компьютера" on:change="processFiles(this.files)">
 
-            <p>или добавьте ссылку на сторонний ресурс(после добавления ссылки, нажмите enter)</p>
-            <input type="url" placeholder="укажите ссылку на файл" bind:value="imageUrl">
-            <button on:click="getLink()">Добавить картинку по ссылке</button>
+                <p>или добавьте ссылку на сторонний ресурс(после добавления ссылки, нажмите enter)</p>
+                <input type="url" placeholder="укажите ссылку на файл" bind:value="imageUrl">
+                <button on:click="getLink()" type="button">Добавить картинку по ссылке</button>
+            </form>
+
         </div>
         <div class="decoration toolbar__section">
             <h2>Добавление рамки</h2>
@@ -45,8 +47,7 @@
         {#each images as image}
         <div class="gallery__image-wrapper {borderClass}" style="
         width:{image.gallerySize.width}%;"><img
-                src="{image.src}" alt=""
-                                                                         class="gallery__image"></div>
+                src="{image.src}" alt="" class="gallery__image"></div>
         {/each}
     </div>
 </div>
@@ -214,7 +215,9 @@
         this.renderImage(files[0]);
       },
       getLink() {
-        this.getSize(this.get().imageUrl);
+        let imageUrl = this.get().imageUrl;
+        if(imageUrl === "" || imageUrl === undefined) return
+        this.getSize(imageUrl);
       },
       renderImage(file) {
         let self = this;
@@ -275,7 +278,11 @@
 
         this.set({images: imagesArray});
 
-        console.info(this.get().images);
+        this.clearFields();
+      },
+
+      clearFields() {
+        document.getElementById("gallery-inputs").reset();
       }
     }
   };

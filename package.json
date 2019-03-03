@@ -25,6 +25,7 @@
     "start:dev": "sirv public --dev"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.2.5",
     "image-layout": "^0.4.1"
   }
 }

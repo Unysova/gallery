@@ -15,7 +15,7 @@
                 <input type="url" placeholder="укажите ссылку на файл" bind:value="imageUrl">
                 <button on:click="initGallery()" type="button">Добавить картинку по ссылке</button>
             </form>
-
+            <button on:click="clearGallery()" type="button">Очистить галлерею</button>
         </div>
         <div class="decoration toolbar__section">
             <h2>Добавление рамки</h2>
@@ -50,7 +50,7 @@
     <div class="gallery">
         {#each images as image}
         <div class="gallery__image-wrapper {borderClass}" style="
-        width:{image.gallerySize.width}%;"><img
+        width:{image.gallerySize.width}px;"><img
                 src="{image.src}" alt="" class="gallery__image"></div>
         {/each}
     </div>
@@ -216,7 +216,9 @@
     methods: {
       initGallery(files) {
           let self = this;
+          console.info("ie1");
             this.addItems(files).then(function() {
+              console.info("ie- added");
               self.galleryResize();
               self.clearFields();
             });
@@ -226,6 +228,7 @@
       addItems(files) {
         return new Promise((resolve) => {
           let self = this;
+        console.info("ie2");
         let imageItems = [];
           if(files !== "" && files !== undefined) {
             //картинка загружена с компа
@@ -344,7 +347,7 @@
             align: 'center', // optional
             containerWidth: galleryWidth,
             spacing: 0,
-            idealElementHeight: 300
+            idealElementHeight: 250
           });
 
           return resolve(resultSizes);
@@ -352,7 +355,7 @@
       },
       setGallerySizes(imagesArray, resultSizes, galleryWidth) {
         for (var i = 0, n = imagesArray.length; i < n; i++) {
-          let width = resultSizes.positions[i].width * 100/ galleryWidth;
+          let width = resultSizes.positions[i].width - 1;
           imagesArray[i].gallerySize.width = +width.toFixed(1);
         }
         this.set({images: imagesArray});
@@ -360,6 +363,10 @@
       clearFields() {
         document.getElementById("gallery-inputs").reset();
       },
+
+      clearGallery() {
+        this.set({images: []});
+      }
     }
   };
 </script>

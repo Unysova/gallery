@@ -1,3 +1,6 @@
+<svelte:window on:resize="galleryResize()"/>
+
+
 <div class="gallery-page">
     <h1>Галерея</h1>
     <section class="toolbar">
@@ -5,11 +8,12 @@
             <h2>Загрузка фото</h2>
             <p>Вы можете загрузить картинку с вашего компьютера</p>
             <form action="" id="gallery-inputs">
-                <input type="file" placeholder="Загрузите файл с вашего компьютера" on:change="processFiles(this.files)">
+                <input type="file" multiple placeholder="Загрузите файл с вашего компьютера"
+                       on:change="initGallery(this.files)">
 
                 <p>или добавьте ссылку на сторонний ресурс(после добавления ссылки, нажмите enter)</p>
                 <input type="url" placeholder="укажите ссылку на файл" bind:value="imageUrl">
-                <button on:click="getLink()" type="button">Добавить картинку по ссылке</button>
+                <button on:click="initGallery()" type="button">Добавить картинку по ссылке</button>
             </form>
 
         </div>
@@ -132,7 +136,7 @@
         align-items: stretch;
         flex-flow: row wrap;
         width: 100%;
-        max-width: 860px;
+        max-width: 90vw;
         min-width: 320px;
         margin: 0 auto;
     }
@@ -210,80 +214,152 @@
       }
     },
     methods: {
-      processFiles(files) {
-        console.info(files);
-        this.renderImage(files[0]);
-      },
-      getLink() {
-        let imageUrl = this.get().imageUrl;
-        if(imageUrl === "" || imageUrl === undefined) return
-        this.getSize(imageUrl);
-      },
-      renderImage(file) {
-        let self = this;
-        let reader = new FileReader();
+      initGallery(files) {
+          let self = this;
+            this.addItems(files).then(function() {
+              self.galleryResize();
+              self.clearFields();
+            });
 
+        },
+
+      addItems(files) {
+        return new Promise((resolve) => {
+          let self = this;
+        let imageItems = [];
+          if(files !== "" && files !== undefined) {
+            //картинка загружена с компа
+              for (var i = 0, n = files.length; i < n; i++) {
+                self.createItem(files[i], false).then(function(imageItem) {
+                  imageItems.push(imageItem);
+                  if(imageItems.length === files.length) {
+                    self.pushImage(imageItems);
+                    return resolve();
+                  }
+                })
+              }
+            } else {
+                //картинка по ссылке
+              let imageUrl = this.get().imageUrl;
+              if(imageUrl === "" || imageUrl === undefined) return
+                self.createItem(imageUrl, true).then(function(imageItem) {
+                    imageItems.push(imageItem);
+                    self.pushImage(imageItems);
+                    return resolve();
+                })
+            }
+      });
+      },
+        createItem(file, link) {
+          let self = this;
+          return new Promise((resolve) => {
+            if(link === true) {
+                self.getSize(file, function(size){
+                  let imageItem = {
+                    "src": `${file}`,
+                    "width": size.width,
+                    "height": size.height,
+                    gallerySize : {
+                      width: 0,
+                      height: 0
+                    }
+                  };
+                  return resolve(imageItem);
+                });
+
+              } else {
+                self.renderImage(file, function(src){
+                  self.getSize(src, function(size){
+                    let imageItem = {
+                      "src": `${src}`,
+                      "width": size.width,
+                      "height": size.height,
+                      gallerySize : {
+                        width: 0,
+                        height: 0
+                      }
+                    };
+                    return resolve(imageItem);
+                  });
+                })
+              }
+          });
+        },
+
+      renderImage(file, callback) {
+        let src = '';
+        let reader = new FileReader();
         reader.onload = function (e) {
-          let src = e.target.result;
-          self.getSize(src);
+          src = e.target.result;
+          callback(src);
         };
+
         reader.readAsDataURL(file);
       },
 
-      getSize(src) {
+      getSize(src, callback) {
         let img = new Image();
-        let self = this;
         img.onload = function () {
           let width = this.width;
           let height = this.height;
-          self.pushImage(src, width, height);
-        };
+          let size = {
+            "width": width,
+            "height": height
+          };
 
-        img.onerror = function () {
-          alert("Упс. что-то пошло не так. Проверьте правильность ссылки");
+          callback(size);
         };
 
         img.src = src;
+
+        img.onerror = function () {
+          alert("Упс. что-то пошло не так. Проверьте правильность ссылки");
+          return
+        };
+
+
       },
 
-      pushImage(src, width, height) {
+      pushImage(imageItems) {
         let imagesArray = this.get().images;
         this.set({images: []});
-        let image = {
-          "src": `${src}`,
-          "width": width,
-          "height": height,
-          gallerySize : {
-            width: 0,
-            height: 0
-          }
-        };
-        imagesArray.push(image);
 
-        var galleryWidth = document.getElementsByClassName("gallery")[0].offsetWidth;
-
-        var result = layout(imagesArray, {
-          align: 'center', // optional
-          containerWidth: galleryWidth,
-          spacing: 15,
-          idealElementHeight: 300,
-        });
-
-
-        for (var i = 0, n = imagesArray.length; i < n; i++) {
-          let width = result.positions[i].width * 100/ galleryWidth;
-          imagesArray[i].gallerySize.width = width;
-          //imagesArray[i].gallerySize.height = result.positions[i].height;
+        for (var i = 0, n = imageItems.length; i < n; i++) {
+          imagesArray.push(imageItems[i])
         }
-
         this.set({images: imagesArray});
 
-        this.clearFields();
       },
+      galleryResize () {
+        let self = this;
+            let imagesArray = this.get().images;
+            var galleryWidth = document.getElementsByClassName("gallery")[0].offsetWidth;
+            this.getGallerySizes(imagesArray, galleryWidth).then(function (resultSizes) {
+              self.setGallerySizes(imagesArray, resultSizes, galleryWidth);
+            });
+      },
+      getGallerySizes(imagesArray, galleryWidth) {
+        return new Promise((resolve) => {
+          let resultSizes = layout(imagesArray, {
+            align: 'center', // optional
+            containerWidth: galleryWidth,
+            spacing: 0,
+            idealElementHeight: 300
+          });
 
+          return resolve(resultSizes);
+        });
+      },
+      setGallerySizes(imagesArray, resultSizes, galleryWidth) {
+        for (var i = 0, n = imagesArray.length; i < n; i++) {
+          let width = resultSizes.positions[i].width * 100/ galleryWidth;
+          imagesArray[i].gallerySize.width = +width.toFixed(1);
+        }
+        this.set({images: imagesArray});
+      },
       clearFields() {
         document.getElementById("gallery-inputs").reset();
-      }
+      },
     }
   };
 </script>

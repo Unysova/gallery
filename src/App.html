@@ -15,7 +15,7 @@
                 <input type="url" placeholder="укажите ссылку на файл" bind:value="imageUrl">
                 <button on:click="initGallery()" type="button">Добавить картинку по ссылке</button>
             </form>
-            <button on:click="clearGallery()" type="button">Очистить галлерею</button>
+            <button on:click="clearGallery()" type="button">Очистить галерею</button>
         </div>
         <div class="decoration toolbar__section">
             <h2>Добавление рамки</h2>
@@ -215,79 +215,79 @@
     },
     methods: {
       initGallery(files) {
-          let self = this;
-          console.info("ie1");
-            this.addItems(files).then(function() {
-              console.info("ie- added");
-              self.galleryResize();
-              self.clearFields();
-            });
+        let self = this;
+        this.addItems(files).then(function() {
+          self.galleryResize();
+          self.clearFields();
+        });
 
-        },
+      },
 
       addItems(files) {
         return new Promise((resolve) => {
           let self = this;
-        console.info("ie2");
         let imageItems = [];
-          if(files !== "" && files !== undefined) {
-            //картинка загружена с компа
-              for (var i = 0, n = files.length; i < n; i++) {
-                self.createItem(files[i], false).then(function(imageItem) {
-                  imageItems.push(imageItem);
-                  if(imageItems.length === files.length) {
-                    self.pushImage(imageItems);
-                    return resolve();
-                  }
-                })
+        if(files !== "" && files !== undefined) {
+          //картинка загружена с компьютера
+          for (var i = 0, n = files.length; i < n; i++) {
+            //обрабаываем введенные картинки и добавляем в массив
+            self.createItem(files[i], false).then(function(imageItem) {
+              imageItems.push(imageItem);
+              if(imageItems.length === files.length) {
+                self.pushImage(imageItems);
+                return resolve();
               }
-            } else {
-                //картинка по ссылке
-              let imageUrl = this.get().imageUrl;
-              if(imageUrl === "" || imageUrl === undefined) return
-                self.createItem(imageUrl, true).then(function(imageItem) {
-                    imageItems.push(imageItem);
-                    self.pushImage(imageItems);
-                    return resolve();
-                })
-            }
+            })
+          }
+        } else {
+          //картинка по ссылке
+          let imageUrl = this.get().imageUrl;
+          //если ссылка не введена, не обрабатываем
+          if(imageUrl === "" || imageUrl === undefined) return
+          self.createItem(imageUrl, true).then(function(imageItem) {
+            imageItems.push(imageItem);
+            self.pushImage(imageItems);
+            return resolve();
+          })
+        }
       });
       },
-        createItem(file, link) {
-          let self = this;
-          return new Promise((resolve) => {
-            if(link === true) {
-                self.getSize(file, function(size){
-                  let imageItem = {
-                    "src": `${file}`,
-                    "width": size.width,
-                    "height": size.height,
-                    gallerySize : {
-                      width: 0,
-                      height: 0
-                    }
-                  };
-                  return resolve(imageItem);
-                });
-
-              } else {
-                self.renderImage(file, function(src){
-                  self.getSize(src, function(size){
-                    let imageItem = {
-                      "src": `${src}`,
-                      "width": size.width,
-                      "height": size.height,
-                      gallerySize : {
-                        width: 0,
-                        height: 0
-                      }
-                    };
-                    return resolve(imageItem);
-                  });
-                })
+      createItem(file, link) {
+        let self = this;
+        return new Promise((resolve) => {
+          //создаем объект, содержащий информацию по картинке
+          if(link === true) {
+          self.getSize(file, function(size){
+            let imageItem = {
+              "src": `${file}`,
+              "width": size.width,
+              "height": size.height,
+              gallerySize : {
+                width: 0,
+                height: 0
               }
+            };
+            return resolve(imageItem);
           });
-        },
+
+        } else {
+          self.renderImage(file, function(src){
+            self.getSize(src, function(size){
+              let imageItem = {
+                "src": `${src}`,
+                "width": size.width,
+                "height": size.height,
+                gallerySize : {
+                  width: 0,
+                  height: 0
+                }
+              };
+              return resolve(imageItem);
+            });
+          })
+        }
+      });
+      },
 
       renderImage(file, callback) {
         let src = '';
@@ -301,6 +301,7 @@
       },
 
       getSize(src, callback) {
+        //получаем исходные размеры изображений
         let img = new Image();
         img.onload = function () {
           let width = this.width;
@@ -314,16 +315,15 @@
         };
 
         img.src = src;
-
+        //если изображение не загрузилось
         img.onerror = function () {
           alert("Упс. что-то пошло не так. Проверьте правильность ссылки");
           return
         };
-
-
       },
 
       pushImage(imageItems) {
+        //добавляем изображеия в массив для отрисовки
         let imagesArray = this.get().images;
         this.set({images: []});
 
@@ -331,16 +331,18 @@
           imagesArray.push(imageItems[i])
         }
         this.set({images: imagesArray});
+      },
 
-      },
       galleryResize () {
+        //получаем и устанавливаем картинкам размеры для галереи
         let self = this;
-            let imagesArray = this.get().images;
-            var galleryWidth = document.getElementsByClassName("gallery")[0].offsetWidth;
-            this.getGallerySizes(imagesArray, galleryWidth).then(function (resultSizes) {
-              self.setGallerySizes(imagesArray, resultSizes, galleryWidth);
-            });
+        let imagesArray = this.get().images;
+        var galleryWidth = document.getElementsByClassName("gallery")[0].offsetWidth;
+        this.getGallerySizes(imagesArray, galleryWidth).then(function (resultSizes) {
+          self.setGallerySizes(imagesArray, resultSizes, galleryWidth);
+        });
       },
+
       getGallerySizes(imagesArray, galleryWidth) {
         return new Promise((resolve) => {
           let resultSizes = layout(imagesArray, {
@@ -350,9 +352,10 @@
             idealElementHeight: 250
           });
 
-          return resolve(resultSizes);
-        });
+        return resolve(resultSizes);
+      });
       },
+
       setGallerySizes(imagesArray, resultSizes, galleryWidth) {
         for (var i = 0, n = imagesArray.length; i < n; i++) {
           let width = resultSizes.positions[i].width - 1;
@@ -360,11 +363,14 @@
         }
         this.set({images: imagesArray});
       },
+
       clearFields() {
+        //очистка формы
         document.getElementById("gallery-inputs").reset();
       },
 
       clearGallery() {
+        // удаление всех элементов в галерее
         this.set({images: []});
       }
     }
